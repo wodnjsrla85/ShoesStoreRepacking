@@ -8,7 +8,7 @@ class Customer {
   final String caddress;
   final String ccardnum;
   final int ccardcvc;
-  final String ccarddate;
+  final int ccarddate; // String을 int로 변경하였습니다.
   
   Customer({
     this.id,
@@ -35,7 +35,7 @@ class Customer {
       caddress: json[6]??"__",
       ccardnum: json[7]??"__",
       ccardcvc: json[8]??"__",
-      ccarddate: json[9]??"__",
+      ccarddate: json[9] ??"__",
     );
   }
   Map<String,dynamic>toMap(){ 
@@ -76,7 +76,7 @@ class Customer {
     String? caddress,
     String? ccardnum,
     int? ccardcvc,
-    String? ccarddate
+    int? ccarddate // String을 int로 변경하였습니다.
   }){
     return Customer(
       id: id ?? this.id, 

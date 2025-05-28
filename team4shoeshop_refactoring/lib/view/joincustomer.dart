@@ -123,7 +123,7 @@ class _JoinCustomerState extends ConsumerState<Joincustomer> {
       caddress: caddressController.text.trim(),
       ccardnum: "", // 가입 시 카드 정보는 비움
       ccardcvc: 0,
-      ccarddate: "",
+      ccarddate: 0, // String을 int로 변경해서 초기값을 0으로 바꾸었습니다.
     );
 
     final result = await ref
