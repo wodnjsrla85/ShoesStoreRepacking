@@ -1,112 +1,22 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/admin/admin_main.dart';
-import 'package:team4shoeshop_refactoring/dealer/dealer_main.dart';
 import 'package:team4shoeshop_refactoring/view/login.dart';
+import 'package:team4shoeshop_refactoring/vm/3_provider.dart';
 
 
-class Adminlogin extends StatefulWidget {
+class Adminlogin extends ConsumerWidget {
   const Adminlogin({super.key});
 
   @override
-  State<Adminlogin> createState() => _AdminloginState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final adminIdController = TextEditingController();
+    final adminpasswordController = TextEditingController();
+    final employeeNotifier = ref.read(employeeLoginProvider.notifier);
+    final box = GetStorage();
 
-class _AdminloginState extends State<Adminlogin> {
-  final TextEditingController adminIdController = TextEditingController();
-  final TextEditingController adminpasswordController = TextEditingController();
-  final box = GetStorage();
-
-  @override
-  void initState() {
-    super.initState();
-    initStorage();
-  }
-
-  void initStorage() {
-    box.write('adminId', "");
-    box.write('adminName', "");
-    box.write('adminPermission', -1);
-  }
-
-  Future<void> loginAdmin() async {
-    final id = adminIdController.text.trim();
-    final pw = adminpasswordController.text.trim();
-
-    if (id.isEmpty || pw.isEmpty) {
-      errorSnackBar();
-      return;
-    }
-
-    try {
-      final url = Uri.parse("http://127.0.0.1:8000/employee_login");
-      final request = http.MultipartRequest("POST", url);
-      request.fields['eid'] = id;
-      request.fields['epassword'] = pw;
-
-      final response = await request.send();
-      final responseBody = await response.stream.bytesToString();
-      final data = json.decode(responseBody);
-
-      if (data['result'] == 'success') {
-        box.write('adminId', data['eid']);
-        box.write('adminName', data['ename']);
-        box.write('adminPermission', data['epermission']);
-
-        _showDialog(data);
-      } else {
-        Get.snackbar(
-          '로그인 실패',
-          '아이디 또는 비밀번호가 올바르지 않습니다.',
-          snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 2),
-          colorText: Theme.of(context).colorScheme.onError,
-          backgroundColor: Theme.of(context).colorScheme.error,
-        );
-      }
-    } catch (e) {
-      Get.snackbar("서버 오류", "로그인 요청 중 문제가 발생했습니다.");
-    }
-  }
-
-  void _showDialog(Map<String, dynamic> employee) {
-    Get.defaultDialog(
-      title: '환영합니다',
-      middleText: '신분이 확인되었습니다.',
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      barrierDismissible: false,
-      actions: [
-        TextButton(
-          onPressed: () {
-            Get.back();
-            if (employee['epermission'] == 0) {
-              Get.offAll(() => const DealerMain());
-            } else {
-              Get.offAll(() => const AdminMain());
-            }
-          },
-          child: const Text('확인'),
-        ),
-      ],
-    );
-  }
-
-  void errorSnackBar() {
-    Get.snackbar(
-      '경고',
-      '관리자 ID와 암호를 입력하세요',
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 2),
-      colorText: Theme.of(context).colorScheme.onError,
-      backgroundColor: Theme.of(context).colorScheme.error,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -164,7 +74,16 @@ class _AdminloginState extends State<Adminlogin> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: loginAdmin,
+                      onPressed:() async{
+                        final id = adminIdController.text.trim();
+                        final pw = adminpasswordController.text.trim();
+                        await employeeNotifier.loginAdmin(id,pw);
+                        if(box.read('adminId') != null){
+                          Get.to(()=> AdminMain());
+                        }else{
+                          return;
+                        }
+                      },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         backgroundColor: Colors.blue[700],

@@ -153,7 +153,10 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed: login,
+                    onPressed:() async{
+                     await login();
+                     print(box.read('p_userId'));
+                    },
                     icon: const Icon(Icons.login),
                     label: const Text('로그인', style: TextStyle(fontSize: 16)),
                     style: ElevatedButton.styleFrom(

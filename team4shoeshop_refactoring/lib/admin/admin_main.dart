@@ -27,10 +27,10 @@ class _AdminMainState extends State<AdminMain> {
   @override
   void initState() {
     super.initState();
-    final permission = box.read('adminPermission');
+    final permission = box.read('adminPermission') ?? 0;
     // handler = DatabaseHandler();
     getJSONData();
-    getApprovalCount(permission);
+    // getApprovalCount(permission);
   }
 
     getJSONData()async{
@@ -48,7 +48,7 @@ class _AdminMainState extends State<AdminMain> {
 
     getApprovalCount(int permission)async{
     var response3 = await http.get(Uri.parse("http://127.0.0.1:8000/a_approval_count/$permission"));
-    approval = (json.decode(utf8.decode(response3.bodyBytes))['result'])??0;
+    approval = (json.decode(utf8.decode(response3.bodyBytes))['result']) ?? 0;
     setState(() {});
   }
 
