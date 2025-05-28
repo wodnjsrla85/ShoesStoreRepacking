@@ -1,5 +1,3 @@
-상품별 매출
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
