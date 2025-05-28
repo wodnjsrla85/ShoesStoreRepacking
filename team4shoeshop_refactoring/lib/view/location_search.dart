@@ -125,37 +125,43 @@ class _LocationSearchState extends State<LocationSearch> {
                   userAgentPackageName: 'com.example.app',
                 ),
                 if (selectedDealer != null)
-MarkerLayer(
-  markers: [
-    // 현재 위치 마커
-    if (currentLocation != null)
-      Marker(
-        point: currentLocation!,
-        width: 40,
-        height: 40,
-        child: const Icon(
-          Icons.person_pin_circle,
-          color: Colors.blue,
-          size: 40,
-        ),
-      ),
-    // 선택된 대리점 마커
-    if (selectedDealer != null)
-      Marker(
-        point: LatLng(
-          double.tryParse(selectedDealer!["lat"].toString()) ?? 0.0,
-          double.tryParse(selectedDealer!["lng"].toString()) ?? 0.0,
-        ),
-        width: 40,
-        height: 40,
-        child: const Icon(
-          Icons.location_on,
-          color: Colors.red,
-          size: 40,
-        ),
-      ),
-  ],
-),
+                  MarkerLayer(
+                    markers: [
+                      // 현재 위치 마커
+                      if (currentLocation != null)
+                        Marker(
+                          point: currentLocation!,
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.person_pin_circle,
+                            color: Colors.blue,
+                            size: 40,
+                          ),
+                        ),
+                      // 선택된 대리점 마커
+                      if (selectedDealer != null)
+                        Marker(
+                          point: LatLng(
+                            double.tryParse(
+                                  selectedDealer!["lat"].toString(),
+                                ) ??
+                                0.0,
+                            double.tryParse(
+                                  selectedDealer!["lng"].toString(),
+                                ) ??
+                                0.0,
+                          ),
+                          width: 40,
+                          height: 40,
+                          child: const Icon(
+                            Icons.location_on,
+                            color: Colors.red,
+                            size: 40,
+                          ),
+                        ),
+                    ],
+                  ),
               ],
             ),
           ),

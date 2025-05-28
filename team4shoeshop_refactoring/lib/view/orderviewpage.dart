@@ -6,6 +6,8 @@ import 'package:team4shoeshop_refactoring/vm/4_provider.dart';
 
 class OrderViewPage extends ConsumerWidget {
   const OrderViewPage({super.key});
+ 
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersProductState = ref.watch(ordersProductProvider);
@@ -20,7 +22,7 @@ class OrderViewPage extends ConsumerWidget {
               itemBuilder: (context, index) {
                 final order = data[index];
                 final total = order.pprice * order.count;
-
+                
                 return Card(
                   margin: const EdgeInsets.all(8),
                   child: ListTile(

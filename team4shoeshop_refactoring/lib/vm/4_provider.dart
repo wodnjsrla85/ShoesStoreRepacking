@@ -16,7 +16,8 @@ class OrdersProductNotifier extends AsyncNotifier<List<OrdersProduct>>{
   }
 
   final String baseUrl = "http://127.0.0.1:8000";
-  final box =GetStorage();
+  final box = GetStorage();
+  
 
   Future<List<OrdersProduct>> fetchOrders() async {
     final cid = box.read('p_userId');
@@ -30,7 +31,6 @@ class OrdersProductNotifier extends AsyncNotifier<List<OrdersProduct>>{
     return result;
   }
 }
-
 
 final ordersProductProvider = AsyncNotifierProvider<OrdersProductNotifier, List<OrdersProduct>>(
   () => OrdersProductNotifier(),
