@@ -180,7 +180,7 @@ class Updateuser extends StateNotifier<CustomerState> {
     final url = Uri.parse('http://127.0.0.1:8000/update_customer');
     final request = http.MultipartRequest('POST', url);
 
-    final cardDateText = c.ccarddate;
+    final cardDateText = c.ccarddate.toString();
     if (cardDateText.length != 4 ||
         int.tryParse(cardDateText.substring(2)) == null ||
         int.parse(cardDateText.substring(2)) < 1 ||

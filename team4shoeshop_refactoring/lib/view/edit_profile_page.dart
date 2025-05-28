@@ -15,7 +15,7 @@ import 'package:team4shoeshop_refactoring/vm/2_provider.dart';
 import '../model/customer.dart';
 
 class EditProfilePage extends ConsumerWidget {
-   EditProfilePage({super.key});
+  EditProfilePage({super.key});
   
   final nameController = TextEditingController();
   final passwordController = TextEditingController();
@@ -190,7 +190,7 @@ class EditProfilePage extends ConsumerWidget {
                           caddress: addressController.text.trim(),
                           ccardnum: cardNumController.text.trim(),
                           ccardcvc: int.parse(cardCvcController.text.trim()),
-                          ccarddate: cardDateController.text.trim(),
+                          ccarddate: int.parse(cardDateController.text.trim()),
                         );
                         //회원 정보 customer모델에 값을 넣어 업데이트 하는 곳으로 보냄 
                         ref.read(updateuserProvider.notifier).updateProfile(customer);

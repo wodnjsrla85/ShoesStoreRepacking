@@ -55,14 +55,14 @@ void initState() {
         customer.ccarddate == 0) {
       Get.snackbar("카드 정보 없음", "회원정보 수정이 필요합니다.");
       await Future.delayed(const Duration(seconds: 1));
-      Get.to(() => const EditProfilePage());
+      Get.to(() => EditProfilePage());
       return;
     }
 
     final items = ref.read(cartProvider).value ?? [];
     final selectedItems = items.where((item) => selectedOids.contains(item["oid"])).toList();
 
-    Get.to(() => const BuyPage(), arguments: {
+    Get.to(() => BuyPage(), arguments: {
       "items": selectedItems,
     });
   }
