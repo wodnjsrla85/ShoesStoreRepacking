@@ -135,6 +135,40 @@ async def customer_info(cid: str):
     except Exception as e:
         print("Error:", e)
         return {"result": "ERROR"}
+
+@app.get("/customer_info1") # 회원정보 수정에서 회원정보를 select
+async def customer_info1(cid: str):
+    try:
+        conn = connect()
+        curs = conn.cursor()
+        sql = """
+            SELECT cid, cname,cpassword,cphone, cemail, caddress, ccardnum, ccardcvc, ccarddate
+            FROM customer
+            WHERE cid = %s
+        """
+        curs.execute(sql, (cid,))
+        row = curs.fetchone()
+        conn.close()
+
+        if row:
+            return {
+                "cid": row[0],
+                "cname": row[1],
+                "cpassword": row[2],
+                "cphone": row[3],
+                "cemail": row[4],
+                "caddress": row[5],
+                "ccardnum": row[6],
+                "ccardcvc": row[7],
+                "ccarddate": row[8],
+                "result": "OK"
+            }
+        else:
+            return {"result": "NOT_FOUND"}
+    except Exception as e:
+        print("Error:", e)
+        return {"result": "ERROR"}
+  
   
 
 

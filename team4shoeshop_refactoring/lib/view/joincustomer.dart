@@ -101,7 +101,7 @@ class _JoincustomerState extends State<Joincustomer> {
       if (data["result"] == "OK") {
         Get.snackbar("성공", "회원가입이 완료되었습니다.", backgroundColor: Colors.green, colorText: Colors.white);
         Future.delayed(const Duration(seconds: 1), () {
-          Get.offAll(() => const LoginPage());
+          Get.offAll(() => LoginPage());
         });
       } else {
         Get.snackbar("실패", "회원가입에 실패했습니다.", backgroundColor: Colors.red, colorText: Colors.white);

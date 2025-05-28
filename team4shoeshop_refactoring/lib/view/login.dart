@@ -1,112 +1,18 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/view/adminlogin.dart';
 import 'package:team4shoeshop_refactoring/view/joincustomer.dart';
-import 'package:team4shoeshop_refactoring/view/shoeslistpage.dart';
+import 'package:team4shoeshop_refactoring/vm/2_provider.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
-
-  @override
-  State<LoginPage> createState() => _LoginPageState();
-}
-
-class _LoginPageState extends State<LoginPage> {
+class LoginPage extends ConsumerWidget{
+  LoginPage({super.key});
   final TextEditingController userIdController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final box = GetStorage();
+
 
   @override
-  void initState() {
-    super.initState();
-    initStorage();
-  }
-
-  void initStorage() {
-    box.write('p_userId', "");
-    box.write('p_password', "");
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  Future<void> login() async {
-    final id = userIdController.text.trim();
-    final pw = passwordController.text.trim();
-
-    if (id.isEmpty || pw.isEmpty) {
-      errorSnackBar();
-      return;
-    }
-
-    final url = Uri.parse("http://127.0.0.1:8000/login");
-    final request = http.MultipartRequest('POST', url);
-    request.fields['cid'] = id;
-    request.fields['cpassword'] = pw;
-
-    try {
-      final response = await request.send();
-      final resBody = await response.stream.bytesToString();
-      final data = json.decode(resBody);
-
-      if (data["result"] == "success") {
-        box.write('p_userId', id);
-        _showDialog(data["cname"]);
-      } else {
-        Get.snackbar(
-          '로그인 실패',
-          'ID 또는 비밀번호가 잘못되었습니다.',
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red,
-          colorText: Colors.white,
-        );
-      }
-    } catch (e) {
-      Get.snackbar("오류", "서버 오류: $e");
-    }
-  }
-
-  void _showDialog(String name) {
-    Get.defaultDialog(
-      title: '환영합니다',
-      middleText: '$name 님, 환영합니다.',
-      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-      barrierDismissible: false,
-      actions: [
-        TextButton(
-          onPressed: () {
-            saveStorage();
-            Get.back();
-            Get.to(() => const Shoeslistpage());
-          },
-          child: const Text('Exit'),
-        ),
-      ],
-    );
-  }
-
-  void saveStorage() {
-    box.write('p_userId', userIdController.text);
-  }
-
-  void errorSnackBar() {
-    Get.snackbar(
-      '경고',
-      '사용자 ID와 암호를 입력하세요',
-      snackPosition: SnackPosition.TOP,
-      duration: const Duration(seconds: 2),
-      colorText: Theme.of(context).colorScheme.onError,
-      backgroundColor: Theme.of(context).colorScheme.error,
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(title: const Text('Log In')),
       body: SingleChildScrollView(
@@ -153,9 +59,8 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton.icon(
-                    onPressed:() async{
-                     await login();
-                     print(box.read('p_userId'));
+                    onPressed: (){
+                      ref.read(loginProvider.notifier).login(userIdController.text.trim(),passwordController.text.trim()) ;
                     },
                     icon: const Icon(Icons.login),
                     label: const Text('로그인', style: TextStyle(fontSize: 16)),

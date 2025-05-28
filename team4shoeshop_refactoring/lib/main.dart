@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:team4shoeshop_refactoring/view/login.dart';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init();
   runApp(ProviderScope(child: MyApp()));
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

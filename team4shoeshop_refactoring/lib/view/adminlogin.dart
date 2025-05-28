@@ -99,7 +99,7 @@ class Adminlogin extends ConsumerWidget {
                   ),
                   const SizedBox(height: 10),
                   TextButton(
-                    onPressed: () => Get.off(() => const LoginPage()),
+                    onPressed: () => Get.off(() =>LoginPage()),
                     child: const Text(
                       '고객 로그인으로 돌아가기',
                       style: TextStyle(color: Colors.blue),
