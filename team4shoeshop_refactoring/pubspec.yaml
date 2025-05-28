@@ -76,6 +76,9 @@ dependencies:
   #http
   http: ^1.4.0
 
+  # flutter_riverpod
+  flutter_riverpod: ^2.6.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

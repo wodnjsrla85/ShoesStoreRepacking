@@ -38,7 +38,7 @@ class Customer {
       ccarddate: json[9]??"__",
     );
   }
-  Map<String,dynamic>toMap(){
+  Map<String,dynamic>toMap(){ 
     return{
       'id' : id,
       'cid' : cid,
@@ -53,6 +53,18 @@ class Customer {
 
     };
   }
+
+  Map<String, String> toRegisterMap() { // 전종익 추가, 회원가입시 카드정보를 넣지 않아 필요한 부분만 넣었습니다.
+    return {
+      'cid': cid,
+      'cname': cname,
+      'cpassword': cpassword,
+      'cphone': cphone,
+      'cemail': cemail,
+      'caddress': caddress,
+    };
+  }
+
   //복사본
   Customer copyWith({
     int? id,
