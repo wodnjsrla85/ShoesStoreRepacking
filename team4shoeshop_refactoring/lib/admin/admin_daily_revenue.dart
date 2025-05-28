@@ -19,7 +19,7 @@ class _AdminDailyRevenueState extends State<AdminDailyRevenue> {
     super.initState();
     fetchChartData();
   }
-
+  
   Future<void> fetchChartData() async {
     try {
       final url = Uri.parse("http://127.0.0.1:8000/daily_revenue");
