@@ -85,7 +85,7 @@ class _ShoesDetailPageState extends State<ShoesDetailPage> {
 
     final dealerName = dealers.firstWhere((e) => e["eid"] == selectedDealer)["ename"];
 
-    Get.to(() => const BuyPage(), arguments: {
+    Get.to(() => BuyPage(), arguments: {
       "product": widget.product,
       "quantity": quantity,
       "storeId": selectedDealer,

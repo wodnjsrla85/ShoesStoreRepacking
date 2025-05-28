@@ -1,103 +1,17 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
-import 'shoeslistpage.dart';
+import 'package:team4shoeshop_refactoring/view/shoeslistpage.dart';
+import 'package:team4shoeshop_refactoring/vm/3_provider.dart';
 
-class BuyPage extends StatefulWidget {
-  const BuyPage({super.key});
-
-  @override
-  State<BuyPage> createState() => _BuyPageState();
-}
-
-class _BuyPageState extends State<BuyPage> {
-  final box = GetStorage();
-  final TextEditingController passwordController = TextEditingController();
-  bool isProcessing = false;
-
-  Widget passwordField() {
-    return TextField(
-      controller: passwordController,
-      obscureText: true,
-      maxLength: 2,
-      keyboardType: TextInputType.number,
-      decoration: const InputDecoration(
-        labelText: "카드 비밀번호 앞 2자리",
-        counterText: "",
-      ),
-    );
-  }
-
-  Future<void> submitPurchase() async {
-    if (passwordController.text.length != 2) {
-      Get.snackbar("비밀번호", "카드 비밀번호 앞 2자리를 입력해주세요");
-      return;
-    }
-
-    final cid = box.read("p_userId");
-    if (cid == null) return;
-
-    final arguments = Get.arguments ?? {};
-    final isSingleBuy = arguments["product"] != null;
-
-    setState(() => isProcessing = true);
-
-    if (isSingleBuy) {
-      final product = arguments["product"];
-      final quantity = arguments["quantity"];
-      final oeid = arguments["storeId"];
-
-      final request = http.MultipartRequest(
-        "POST",
-        Uri.parse("http://127.0.0.1:8000/buy_direct"),
-      );
-      request.fields["cid"] = cid;
-      request.fields["pid"] = product["pid"];
-      request.fields["count"] = quantity.toString();
-      request.fields["oeid"] = oeid;
-
-      final response = await request.send();
-      final resBody = await response.stream.bytesToString();
-      final data = json.decode(resBody);
-
-      if (data["result"] == "OK") {
-        Get.snackbar("구매 완료", "상품을 구매하였습니다");
-        await Future.delayed(const Duration(seconds: 1));
-        Get.offAll(() => const Shoeslistpage());
-      } else {
-        Get.snackbar("실패", data["message"] ?? "구매 실패");
-      }
-    } else {
-      final selectedItems = arguments["items"] as List;
-      final encodedItems = json.encode(selectedItems);
-
-      final request = http.MultipartRequest(
-        "POST",
-        Uri.parse("http://127.0.0.1:8000/buy_selected"),
-      );
-      request.fields["cid"] = cid;
-      request.fields["items"] = encodedItems;
-
-      final response = await request.send();
-      final resBody = await response.stream.bytesToString();
-      final data = json.decode(resBody);
-
-      if (data["result"] == "OK") {
-        Get.snackbar("구매 완료", "선택한 상품을 모두 구매하였습니다");
-        await Future.delayed(const Duration(seconds: 1));
-        Get.offAll(() => const Shoeslistpage());
-      } else {
-        Get.snackbar("실패", data["message"] ?? "구매 실패");
-      }
-    }
-
-    setState(() => isProcessing = false);
-  }
+class BuyPage extends ConsumerWidget {
+  BuyPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final TextEditingController passwordController = TextEditingController();
+    final isProcessing = ref.watch(buyProvider);
+    final buyNotifier = ref.read(buyProvider.notifier);
     final arguments = Get.arguments ?? {};
     final isSingleBuy = arguments["product"] != null;
     final items = arguments["items"] ?? [];
@@ -114,10 +28,17 @@ class _BuyPageState extends State<BuyPage> {
             else
               _buildMultipleBuySummary(items),
             const SizedBox(height: 16),
-            passwordField(),
+            passwordField(passwordController),
             const SizedBox(height: 16),
             ElevatedButton(
-              onPressed: isProcessing ? null : submitPurchase,
+              onPressed: ()async{
+                isProcessing 
+                ? null 
+                : await buyNotifier.submitPurchase(passwordController.text,arguments);
+                isProcessing == false
+                ? Get.to(()=>Shoeslistpage()) 
+                : null;
+              }, 
               child: const Text("결제하기"),
             ),
           ],
@@ -143,7 +64,7 @@ class _BuyPageState extends State<BuyPage> {
         Text("- 사이즈: $selectedSize"),
         Text("- 수량: $quantity"),
         Text("- 대리점: $ename"),
-        Text("- 가격: ${price}원"),
+        Text("- 가격: $price원"),
       ],
     );
   }
@@ -167,6 +88,18 @@ class _BuyPageState extends State<BuyPage> {
         Text("총 결제 금액: ${total}원",
             style: const TextStyle(fontWeight: FontWeight.bold)),
       ],
+    );
+  }
+
+  Widget passwordField(TextEditingController controller) {
+    return TextField(
+      controller: controller,
+      obscureText: true,
+      maxLength: 2,
+      keyboardType: TextInputType.number,
+      decoration: const InputDecoration(
+        labelText: "카드 비밀번호 앞 2자리",
+      ),
     );
   }
 }

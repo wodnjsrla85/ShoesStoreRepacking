@@ -87,7 +87,7 @@ class _CartPageState extends State<CartPage> {
       return;
     }
 
-    Get.to(() => const BuyPage(), arguments: {
+    Get.to(() => BuyPage(), arguments: {
       "items": selectedItems,
     });
   }
