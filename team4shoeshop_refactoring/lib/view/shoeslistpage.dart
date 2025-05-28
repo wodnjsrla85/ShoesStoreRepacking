@@ -177,7 +177,7 @@ class _ShoeslistpageState extends State<Shoeslistpage> {
           IconButton(
             icon: const Icon(Icons.receipt_long),
             tooltip: '주문내역',
-            onPressed: () => Get.to(() => const OrderViewPage()),
+            onPressed: () => Get.to(() => OrderViewPage()),
           ),
         ],
       ),
@@ -250,7 +250,7 @@ class MainDrawer extends StatelessWidget {
                   Get.to(() => const EditProfilePage());
                 }),
                 _buildTile(context, Icons.receipt_long, '내 주문 내역', () {
-                  Get.to(() => const OrderViewPage());
+                  Get.to(() => OrderViewPage());
                 }),
                 _buildTile(context, Icons.shopping_cart, '장바구니', () {
                   Get.to(() => const CartPage());
