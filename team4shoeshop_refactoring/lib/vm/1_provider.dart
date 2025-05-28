@@ -112,7 +112,7 @@ class CartNotifier extends AsyncNotifier<List<Map<String, dynamic>>> {
   Future<Customer?> fetchCustomerInfo(String cid) async {
     try {
       final res = await http.get(Uri.parse("http://127.0.0.1:8000/customer_info?cid=$cid"));
-      print("응답 결과: ${res.body}");
+      // print("응답 결과: ${res.body}"); 디버깅용 찍어보기
       final data = json.decode(utf8.decode(res.bodyBytes));
       if (data["result"] == "OK") {
         return Customer(
