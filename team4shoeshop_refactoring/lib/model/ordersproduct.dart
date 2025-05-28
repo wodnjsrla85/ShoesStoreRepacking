@@ -27,19 +27,19 @@ class OrdersProduct{
     }
   );
 
-  factory OrdersProduct.fromJson(List<dynamic> json){
+  factory OrdersProduct.fromJson(Map<String, dynamic> json){
     return OrdersProduct(
-      oid: json[0] ?? 0, 
-      pid: json[1] ?? "__", 
-      count: json[2] ?? 0, 
-      odate: json[3] ?? "__", 
-      ostatus: json[4] ?? "__", 
-      pname: json[5] ?? "__", 
-      pprice: json[6] ?? 0, 
-      pcolor: json[7] ?? "__", 
-      psize: json[8] ?? 0, 
-      ename: json[9] ?? "__", 
-      image_url: json[10] ?? "__"
+      oid: json['oid'] ?? 0, 
+      pid: json['pid'] ?? "__", 
+      count: json['count'] ?? 0, 
+      odate: json['odate'] ?? "__", 
+      ostatus: json['ostatus'] ?? "__", 
+      pname: json['pname'] ?? "__", 
+      pprice: json['pprice'] ?? 0, 
+      pcolor: json['pcolor'] ?? "__", 
+      psize: json['psize'] ?? 0, 
+      ename: json['ename'] ?? "__", 
+      image_url: json['image_url'] ?? "__"
       );
   }
   

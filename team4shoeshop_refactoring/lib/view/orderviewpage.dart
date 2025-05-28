@@ -2,16 +2,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:team4shoeshop_refactoring/vm/4_provider.dart';
 
 class OrderViewPage extends ConsumerWidget {
-  OrderViewPage({super.key});
-
-  final box = GetStorage();
-  iniStorage(){
-    int cid = box.read("p_userId");
-  }
+  const OrderViewPage({super.key});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersProductState = ref.watch(ordersProductProvider);
@@ -19,12 +13,12 @@ class OrderViewPage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text("주문 내역")),
-      body: ordersProductState.isEmpty
-          ? const Center(child: Text("결제 완료된 주문이 없습니다."))
-          : ListView.builder(
-              itemCount: ordersProductState.length,
+      body: ordersProductState.when(
+        data: (data) {
+          return ListView.builder(
+              itemCount: data.length,
               itemBuilder: (context, index) {
-                final order = ordersProductState[index];
+                final order = data[index];
                 final total = order.pprice * order.count;
 
                 return Card(
@@ -45,7 +39,7 @@ class OrderViewPage extends ConsumerWidget {
                         Text("사이즈: ${order.psize}"),
                         Text("수량: ${order.count}"),
                         Text("가격: $total 원"),
-                        Text("대리점: ${order.ename ?? "정보 없음"}"),
+                        Text("대리점: ${order.ename}"),
                         Text("주문일: ${order.odate}"),
                       ],
                     ),
@@ -53,7 +47,16 @@ class OrderViewPage extends ConsumerWidget {
                   ),
                 );
               },
-            ),
+            );
+        }, 
+        error: (error, _) => Center(child: Text('에러 : $error'),), 
+        loading: () => Center(child: CircularProgressIndicator(),),
+      )
+      
+      
+      
+  
+          
     );
   }
 }
