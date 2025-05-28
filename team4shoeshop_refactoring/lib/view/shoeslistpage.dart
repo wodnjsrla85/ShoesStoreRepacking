@@ -247,7 +247,7 @@ class MainDrawer extends StatelessWidget {
                   Get.back();
                 }),
                 _buildTile(context, Icons.person_outline, '회원정보 수정', () {
-                  Get.to(() => const EditProfilePage());
+                  Get.to(() => EditProfilePage());
                 }),
                 _buildTile(context, Icons.receipt_long, '내 주문 내역', () {
                   Get.to(() => const OrderViewPage());
