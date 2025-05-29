@@ -25,17 +25,17 @@ class Product {
     }
     );
   //서버에서 받은 제이쓴
-  factory Product.fromJson(List<dynamic> json){
+  factory Product.fromJson(Map<String, dynamic> json){
     return Product(
-      id: json[0],
-      pid: json[1] ?? "__",
-      pbrand: json[2] ?? "__",
-      pname: json[3] ?? "__",
-      psize: json[4] ?? 0,
-      pcolor: json[5] ?? "__",
-      pstock: json[6] ?? 0,
-      pprice: json[7] ?? 0,
-      pimage: json[8] ?? '',
+      id: json['id'],
+      pid: json['pid'] ?? "__",
+      pbrand: json['pbrand'] ?? "__",
+      pname: json['pname'] ?? "__",
+      psize: json['psize'] ?? 0,
+      pcolor: json['pcolor'] ?? "__",
+      pstock: json['pstock'] ?? 0,
+      pprice: json['pprice'] ?? 0,
+      pimage: json['pimage'] ?? '',
     );
   }
   Map<String,dynamic>toMap(){

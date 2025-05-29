@@ -85,7 +85,7 @@ class _AdminloginState extends State<Adminlogin> {
             if (employee['epermission'] == 0) {
               Get.offAll(() => const DealerMain());
             } else {
-              Get.offAll(() => const AdminMain());
+              Get.offAll(() => AdminMain());
             }
           },
           child: const Text('확인'),

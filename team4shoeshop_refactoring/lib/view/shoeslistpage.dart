@@ -256,7 +256,7 @@ class MainDrawer extends StatelessWidget {
                   Get.to(() => const CartPage());
                 }),
                 _buildTile(context, Icons.location_on, '위치 검색', () {
-                  Get.to(() => const LocationSearch());
+                  // Get.to(() => LocationSearch());
                 }),
                 _buildTile(context, Icons.assignment_return, '반품 내역 확인', () {
                   Get.to(() => const Returns());
