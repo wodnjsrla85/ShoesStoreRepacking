@@ -6,13 +6,9 @@ import 'package:team4shoeshop_refactoring/vm/4_provider.dart';
 
 class OrderViewPage extends ConsumerWidget {
   const OrderViewPage({super.key});
- 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ordersProductState = ref.watch(ordersProductProvider);
-
-
     return Scaffold(
       appBar: AppBar(title: const Text("주문 내역")),
       body: ordersProductState.when(

@@ -5,7 +5,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:team4shoeshop_refactoring/vm/1_provider.dart';
 import 'cart.dart';
 import 'edit_profile_page.dart';
-import 'location_search.dart';
 import 'orderviewpage.dart';
 import 'returns.dart';
 import 'shoes_detail_page.dart';
@@ -200,7 +199,7 @@ class MainDrawer extends StatelessWidget {
                 _buildTile(context, Icons.person_outline, '회원정보 수정', () => Get.to(() => EditProfilePage())),
                 _buildTile(context, Icons.receipt_long, '내 주문 내역', () => Get.to(() => OrderViewPage())),
                 _buildTile(context, Icons.shopping_cart, '장바구니', () => Get.to(() => CartPage())),
-                _buildTile(context, Icons.location_on, '위치 검색', () => Get.to(() => LocationSearch())),
+                // _buildTile(context, Icons.location_on, '위치 검색', () => Get.to(() => LocationSe())),
                 _buildTile(context, Icons.assignment_return, '반품 내역 확인', () => Get.to(() => Returns())),
                 Divider(height: 30),
                 _buildTile(context, Icons.logout, '로그아웃', () {
