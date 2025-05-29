@@ -13,6 +13,8 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:riverpod/riverpod.dart';
+import 'package:team4shoeshop_refactoring/admin/admin_dealer_revenue.dart';
+import 'package:team4shoeshop_refactoring/admin/admin_goods_revenue.dart';
 import 'package:team4shoeshop_refactoring/model/customer.dart';
 import 'package:team4shoeshop_refactoring/view/shoeslistpage.dart';
 import 'package:remedi_kopo/remedi_kopo.dart';
@@ -231,10 +233,107 @@ class Updateuser extends StateNotifier<CustomerState> {
   }
 }
 
+//물건 그래프를 그릴 정보 들고 오는거  
+class AdminGoodsRevenueNotifier extends StateNotifier<List<GoodsRevenue>>{
+
+  AdminGoodsRevenueNotifier ():super([]);
+
+  bool loding = false; 
+  
+  Future<void> fetchChartData() async {
+    try {
+      if(loding){
+        return;
+      }
+      loding = true;
+      final response = await http.get(Uri.parse("http://127.0.0.1:8000/goods_revenue"));
+      final data = json.decode(utf8.decode(response.bodyBytes));
+
+      if (data['result'] != null && data['result'] is List) {
+          
+           state = data['result'].map<GoodsRevenue>((item) {
+            return GoodsRevenue(
+              name: item['name'],
+              amount: (item['total'] ?? 0) ~/ 10000, // 만원 단위
+            );
+          }).toList();
+      }
+    } catch (e) {
+      print('❗ 서버 통신 오류: $e');
+    }
+  } 
+}
+
+//데일리 그래프 그릴 정보 들고 오기 
+class AdminDealerRevenueNotifier extends StateNotifier<List<DealerRevenue>>{
+  AdminDealerRevenueNotifier ():super([]);
+  
+  String selectedYear = DateTime.now().year.toString(); //처음 시작 년 
+  String selectedMonth = DateTime.now().month.toString().padLeft(2, '0'); // 처음 시작 월 
+  
+  //처음에 시작하자 마자 한 번 도표를 그릴 함수 
+  Future<void> fetchChartData() async {
+    try {
+      final url = Uri.parse(
+        'http://127.0.0.1:8000/dealer_revenue?year=$selectedYear&month=$selectedMonth',
+      );
+      final response = await http.get(url);
+      final data = json.decode(utf8.decode(response.bodyBytes));
+
+      if (data['result'] != null && data['result'] is List) {
+    
+          state = data['result'].map<DealerRevenue>((item) {
+            return DealerRevenue(
+              name: item['ename'],
+              amount: (item['total'] ?? 0) ~/ 10000, // 만원 단위
+            );
+          }).toList();
+      } else {
+        state =[];
+      }
+    } catch (e) {
+      print('❗ 에러: $e');
+    }
+  }
+  //데이터가 변경 되었을 때 그 값을 넣어줄 함수 
+
+   Future<void> fetchChartData1() async {
+    try {
+      final url = Uri.parse(
+        'http://127.0.0.1:8000/dealer_revenue?year=$selectedYear&month=$selectedMonth',
+      );
+      final response = await http.get(url);
+      final data = json.decode(utf8.decode(response.bodyBytes));
+
+      if (data['result'] != null && data['result'] is List) {
+    
+          state = data['result'].map<DealerRevenue>((item) {
+            return DealerRevenue(
+              name: item['ename'],
+              amount: (item['total'] ?? 0) ~/ 10000, // 만원 단위
+            );
+          }).toList();
+      } else {
+        state =[];
+      }
+    } catch (e) {
+      print('❗ 에러: $e');
+    }
+  }
+}
+
+//데일리 도표
+final adminDealerRevenueProvider = StateNotifierProvider<AdminDealerRevenueNotifier,List<DealerRevenue>>(
+   (ref)=>AdminDealerRevenueNotifier()
+);
+//물건 도표
+final adminGoodsRevenueProvider = StateNotifierProvider<AdminGoodsRevenueNotifier,List<GoodsRevenue>>(
+  (ref)=>AdminGoodsRevenueNotifier());
+//로그인
 final loginProvider = StateNotifierProvider<LoginNotifier, List<Customer>>(
   (ref) => LoginNotifier(),
 );
-
+//업데이트 
 final updateuserProvider = StateNotifierProvider<Updateuser, CustomerState>(
   (ref) => Updateuser(),
 );
