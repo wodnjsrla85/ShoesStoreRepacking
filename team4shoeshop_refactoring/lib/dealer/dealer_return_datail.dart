@@ -4,11 +4,11 @@ import 'package:get/get.dart';
 import 'package:team4shoeshop_refactoring/vm/3_provider.dart';
 
 class DealerReturnDetail extends ConsumerWidget {
-  DealerReturnDetail({super.key});
+  final Map<String, dynamic> orderMap;
+  const DealerReturnDetail({super.key, required this.orderMap,});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-  final Map<String,dynamic> orderMap = Get.arguments ?? '_';
     final returnCountController = TextEditingController(
         text: orderMap['oreturncount']?.toString() ?? '');
     final reasonController =
