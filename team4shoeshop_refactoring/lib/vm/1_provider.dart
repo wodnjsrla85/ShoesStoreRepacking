@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/model/customer.dart';
 
+import '../model/daily_revenue.dart';
+
 
 
 // shoeslistpage.dart 로그인하고 메인화면
@@ -139,3 +141,36 @@ final cartProvider = AsyncNotifierProvider<CartNotifier, List<Map<String, dynami
   () => CartNotifier(),
 );
 
+
+
+
+
+
+
+// admin_daily_revenue.dart 날짜별 매출 그래프 출력
+class DailyRevenueNotifier extends AsyncNotifier<List<DailyRevenue>> {
+  @override
+  Future<List<DailyRevenue>> build() async {
+    // 기본값 로딩 시 여기서 자동 호출됨
+    return await fetchRevenue();
+  }
+
+  Future<List<DailyRevenue>> fetchRevenue() async {
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/daily_revenue'));
+    final data = json.decode(utf8.decode(response.bodyBytes));
+
+    if (data["result"] != null && data["result"] is List) {
+      final revenues = (data["result"] as List)
+          .map((item) => DailyRevenue.fromJson(item))
+          .toList();
+      return revenues;
+    } else {
+      throw Exception("서버 응답 형식 오류");
+    }
+  }
+}
+
+final dailyRevenueProvider =
+    AsyncNotifierProvider<DailyRevenueNotifier, List<DailyRevenue>>(
+  () => DailyRevenueNotifier(),
+);

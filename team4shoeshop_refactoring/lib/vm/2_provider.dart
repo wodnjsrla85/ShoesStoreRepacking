@@ -23,7 +23,10 @@ class LoginNotifier extends StateNotifier<List<Customer>> {
   LoginNotifier() : super([]);
 
   Future<void> login(String id, String pw) async {
+   
     final box = GetStorage();
+    box.erase();
+    Get.offAllNamed('/');
     box.write('p_userId', "");
     box.write('p_password', "");
 
