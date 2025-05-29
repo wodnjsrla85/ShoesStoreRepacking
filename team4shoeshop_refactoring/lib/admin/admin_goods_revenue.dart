@@ -27,7 +27,7 @@ class AdminGoodsRevenue extends ConsumerWidget {
     //만약 변경되는 값이 있다면 실시간으로 반영하기 위해 값에 watch를 주었다. 
     final List<GoodsRevenue> chartData = ref.watch(adminGoodsRevenueProvider);
     // 한번 실핼 할 때 디비에 연결하여 조건에 맞는 값을 검색하고 그 값을 받아 도표에 넣어 준다. 
-    //read는 계속 진행이 되기 때문에 내부에서 한 번만 진행 하도록 만들었다. 
+    //read는 계속 진행이 되기 때문에 내부에서 한 번만 진행 하도록 만들었다.
     ref.read(adminGoodsRevenueProvider.notifier).fetchChartData();
     return Scaffold(
       appBar: AppBar(

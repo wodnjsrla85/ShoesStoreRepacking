@@ -72,7 +72,7 @@ class LoginPage extends ConsumerWidget{
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: (){
-                      //로그인에 넣은 값을 보내준다. 
+                      //로그인에 넣은 값을 보내준다.
                       ref.read(loginProvider.notifier).login(userIdController.text.trim(),passwordController.text.trim()) ;
                     },
                     icon: const Icon(Icons.login),
