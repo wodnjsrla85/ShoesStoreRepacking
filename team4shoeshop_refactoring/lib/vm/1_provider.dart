@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/model/customer.dart';
+import 'package:team4shoeshop_refactoring/model/ordersproduct.dart';
 
 import '../model/daily_revenue.dart';
 
@@ -173,4 +175,33 @@ class DailyRevenueNotifier extends AsyncNotifier<List<DailyRevenue>> {
 final dailyRevenueProvider =
     AsyncNotifierProvider<DailyRevenueNotifier, List<DailyRevenue>>(
   () => DailyRevenueNotifier(),
+);
+
+
+
+
+
+// dealer_return.dart 대리점 반품 출력
+class DealerNotifier extends AsyncNotifier<List<OrdersProduct>> {
+  @override
+  Future<List<OrdersProduct>> build() async {
+    final box = GetStorage();
+    final eid = box.read('adminId') ?? '';
+
+    final response = await http.get(Uri.parse('http://127.0.0.1:8000/list'));
+    if (response.statusCode == 200) {
+      final List data = json.decode(utf8.decode(response.bodyBytes))['results'];
+      return data
+          .map((e) => OrdersProduct.fromJson(e))
+          .where((item) => item.order.oeid == eid)
+          .toList();
+    } else {
+      throw Exception('주문 데이터를 불러오지 못했습니다');
+    }
+  }
+}
+
+final dealerProvider =
+    AsyncNotifierProvider<DealerNotifier, List<OrdersProduct>>(
+  () => DealerNotifier(),
 );
