@@ -4,7 +4,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/model/customer.dart';
 import 'package:team4shoeshop_refactoring/model/ordersproduct.dart';
-
 import '../model/daily_revenue.dart';
 
 
@@ -205,3 +204,27 @@ final dealerProvider =
     AsyncNotifierProvider<DealerNotifier, List<OrdersProduct>>(
   () => DealerNotifier(),
 );
+
+
+// admin_return.dart 본사 반품 출력
+
+class AdminNotifier extends AsyncNotifier<List<OrdersProduct>> {
+  @override
+  Future<List<OrdersProduct>> build() async {
+    final response = await http.get(Uri.parse("http://127.0.0.1:8000/return_orders"));
+    final data = json.decode(utf8.decode(response.bodyBytes));
+
+    if (data['result'] != null && data['result'] is List) {
+      return (data['result'] as List)
+          .map((json) => OrdersProduct.fromJson(json))
+          .toList();
+    } else {
+      throw Exception("서버 응답 형식 오류");
+    }
+  }
+}
+
+final adminProvider = AsyncNotifierProvider<AdminNotifier, List<OrdersProduct>>(
+  () => AdminNotifier(),
+);
+
