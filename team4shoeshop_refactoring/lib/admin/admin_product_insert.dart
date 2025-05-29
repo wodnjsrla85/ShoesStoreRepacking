@@ -1,19 +1,27 @@
+// 상품 등록 페이지 
+
+/* 개발자 : 김수아
+ * 목적 :  
+ *  새로운 제품을 등록해야 될 떄 사용하는 페이지이다. 
+ * 개발일지 :
+ *  20250529
+ *  satefullwidget 이였던 파일을 consumerwidget으로 변경하고
+ *  riverpod을 이용하여  MVVM 형태의 개발을 만들었다. 
+ *  
+ */
+
+
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:http/http.dart' as http;
 import 'package:team4shoeshop_refactoring/admin/widget/admin_drawer.dart';
+import 'package:team4shoeshop_refactoring/vm/2_provider.dart';
 
-class AdminProductInsertPage extends StatefulWidget {
-  const AdminProductInsertPage({super.key});
-
-  @override
-  State<AdminProductInsertPage> createState() => _AdminProductInsertPageState();
-}
-
-class _AdminProductInsertPageState extends State<AdminProductInsertPage> {
+class AdminProductInsertPage extends ConsumerWidget {
+  AdminProductInsertPage({super.key});
   final _formKey = GlobalKey<FormState>();
   final box = GetStorage();
 
@@ -26,8 +34,6 @@ class _AdminProductInsertPageState extends State<AdminProductInsertPage> {
   String? _selectedSize;
   String? _selectedColor;
 
-  XFile? _image;
-  final ImagePicker _picker = ImagePicker();
 
   final List<String> _brands = ['나이키', '아디다스', '뉴발란스', '컨버스', '리복'];
   final List<String> _sizes = ['230', '240', '250', '260', '270', 'Free'];
@@ -38,45 +44,13 @@ class _AdminProductInsertPageState extends State<AdminProductInsertPage> {
     return ['h001', 'h002', 'h003'].contains(eid);
   }
 
-  Future<void> _pickImage() async {
-    final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() => _image = pickedFile);
-    }
-  }
+ 
 
-  Future<void> _submitProduct() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_image == null) {
-      Get.snackbar('오류', '이미지를 선택하세요.');
-      return;
-    }
 
-    final uri = Uri.parse('http://127.0.0.1:8000/a_product_insert');
-    final request = http.MultipartRequest('POST', uri);
-
-    request.fields['pid'] = _pid.text.trim();
-    request.fields['pbrand'] = _selectedBrand!;
-    request.fields['pname'] = _pname.text.trim();
-    request.fields['psize'] = _selectedSize!;
-    request.fields['pcolor'] = _selectedColor!;
-    request.fields['pstock'] = _pstock.text.trim();
-    request.fields['pprice'] = _pprice.text.trim();
-    request.files.add(await http.MultipartFile.fromPath('pimage', _image!.path));
-
-    final response = await request.send();
-    if (response.statusCode == 200) {
-      Get.snackbar('성공', '상품이 등록되었습니다.');
-      await Future.delayed(const Duration(seconds: 1));
-      Get.back();
-    } else {
-      final respStr = await response.stream.bytesToString();
-      Get.snackbar('실패', '에러 발생: $respStr');
-    }
-  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    final insertProvider = ref.watch(productInsertProvider);
     if (!isHQUser()) {
       return Scaffold(
         appBar: AppBar(title: const Text('상품 등록')),
@@ -100,22 +74,22 @@ class _AdminProductInsertPageState extends State<AdminProductInsertPage> {
               const SizedBox(height: 12),
 
               buildDropdown('브랜드', _brands, _selectedBrand, (val) {
-                setState(() => _selectedBrand = val);
+                insertProvider.pbrand = val!;
               }),
               const SizedBox(height: 12),
 
               buildDropdown('사이즈', _sizes, _selectedSize, (val) {
-                setState(() => _selectedSize = val);
+                insertProvider.psize = int.parse(val!);
               }),
               const SizedBox(height: 12),
 
               buildDropdown('색상', _colors, _selectedColor, (val) {
-                setState(() => _selectedColor = val);
+                insertProvider.pcolor= val!;
               }),
               const SizedBox(height: 12),
 
               GestureDetector(
-                onTap: _pickImage,
+                onTap: ()=>ref.read(ImageHandlerProvider.notifier).getImageFromGallery(ImageSource.gallery) ,
                 child: Container(
                   height: 200,
                   decoration: BoxDecoration(
@@ -123,15 +97,29 @@ class _AdminProductInsertPageState extends State<AdminProductInsertPage> {
                     color: Colors.grey[100],
                   ),
                   alignment: Alignment.center,
-                  child: _image != null
-                      ? Image.file(File(_image!.path), fit: BoxFit.cover)
+                  child: ref.watch(ImageHandlerProvider).imageFile != null
+                      ? Image.file(File(ref.watch(ImageHandlerProvider).imageFile!.path), fit: BoxFit.cover)
                       : const Text('이미지를 선택하려면 탭하세요'),
                 ),
               ),
               const SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: _submitProduct,
+                onPressed: (){
+                  
+                  if (ref.watch(ImageHandlerProvider).imageFile == null) {
+                    Get.snackbar('오류', '이미지를 선택하세요.');
+                    return;
+                  }
+                  insertProvider.pid =_pid.text.trim();
+                  insertProvider.pname = _pname.text.trim();
+                  insertProvider.pprice= int.parse(_pprice.text.trim());
+                  insertProvider.pstock = int.parse(_pstock.text.trim());
+                  insertProvider.pimage = ref.watch(ImageHandlerProvider).imageFile!;
+                  ref.read(productInsertProvider.notifier).submitProduct();
+
+                  Get.back();
+                  },
                 child: const Text('상품 등록'),
               ),
             ],

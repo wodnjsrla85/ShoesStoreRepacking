@@ -1,46 +1,34 @@
-import 'dart:convert';
+// 물건별 판매량 
+
+
+/* 개발자 : 김수아
+ * 목적 :  
+ *  제품 마다 매출을 확인할 수 있는 시각적인 자료를 만들고 싶었다.
+ *  이러한 시각자료는 즉각적으로 확인 할 수 있는 만큼 잘나가는 제품 위주로 어떻게 마케팅을 할 수 있을 지에 대하여 더 빠르게 다가갈 수 있다. 
+ * 개발일지 :
+ *  20250529
+ *  satefullwidget 이였던 파일을 consumerwidget으로 변경하고
+ *  riverpod을 이용하여  MVVM 형태의 개발을 만들었다. 
+ *  
+ */
+
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:team4shoeshop_refactoring/vm/2_provider.dart';
 
-class AdminGoodsRevenue extends StatefulWidget {
-  const AdminGoodsRevenue({super.key});
 
+class AdminGoodsRevenue extends ConsumerWidget {
+  AdminGoodsRevenue({super.key});
+  
   @override
-  State<AdminGoodsRevenue> createState() => _AdminGoodsRevenueState();
-}
-
-class _AdminGoodsRevenueState extends State<AdminGoodsRevenue> {
-  List<GoodsRevenue> chartData = [];
-
-  @override
-  void initState() {
-    super.initState();
-    fetchChartData();
-  }
-
-  Future<void> fetchChartData() async {
-    try {
-      final response = await http.get(Uri.parse("http://127.0.0.1:8000/goods_revenue"));
-      final data = json.decode(utf8.decode(response.bodyBytes));
-
-      if (data['result'] != null && data['result'] is List) {
-        setState(() {
-          chartData = data['result'].map<GoodsRevenue>((item) {
-            return GoodsRevenue(
-              name: item['name'],
-              amount: (item['total'] ?? 0) ~/ 10000, // 만원 단위
-            );
-          }).toList();
-        });
-      }
-    } catch (e) {
-      print('❗ 서버 통신 오류: $e');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context,WidgetRef ref) {
+    //만약 변경되는 값이 있다면 실시간으로 반영하기 위해 값에 watch를 주었다. 
+    final List<GoodsRevenue> chartData = ref.watch(adminGoodsRevenueProvider);
+    // 한번 실핼 할 때 디비에 연결하여 조건에 맞는 값을 검색하고 그 값을 받아 도표에 넣어 준다. 
+    //read는 계속 진행이 되기 때문에 내부에서 한 번만 진행 하도록 만들었다.
+    ref.read(adminGoodsRevenueProvider.notifier).fetchChartData();
     return Scaffold(
       appBar: AppBar(
         title: const Text('상품별 매출 현황'),

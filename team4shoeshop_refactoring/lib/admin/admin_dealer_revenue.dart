@@ -1,62 +1,39 @@
 
 //대리점 별 매출 
-import 'dart:convert';
+
+/* 개발자 : 김수아
+ * 목적 :  
+ *  대히점 마다 매출을 확인할 수 있는 시각적인 자료를 만들고 싶었다.
+ * 개발일지 :
+ *  20250529
+ *  satefullwidget 이였던 파일을 consumerwidget으로 변경하고
+ *  riverpod을 이용하여  MVVM 형태의 개발을 만들었다. 
+ *  
+ */
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:team4shoeshop_refactoring/vm/2_provider.dart';
 
-class AdminDealerRevenue extends StatefulWidget {
-  const AdminDealerRevenue({super.key});
+class AdminDealerRevenue extends ConsumerWidget {
+  AdminDealerRevenue({super.key});
 
-  @override
-  State<AdminDealerRevenue> createState() => _AdminDealerRevenueState();
-}
-
-class _AdminDealerRevenueState extends State<AdminDealerRevenue> {
-  List<DealerRevenue> chartData = [];
-
-  String selectedYear = DateTime.now().year.toString();
-  String selectedMonth = DateTime.now().month.toString().padLeft(2, '0');
-
+  //선택된 년
+  final String selectedYear = DateTime.now().year.toString();
+  //선택된 월 
+  final String selectedMonth = DateTime.now().month.toString().padLeft(2, '0');
+  //선택이 가능한 년도 리스트 설정 추가 될 수록 더 넣을 수 있댜.
   final List<String> years = ['2024', '2025'];
   final List<String> months = List.generate(12, (i) => (i + 1).toString().padLeft(2, '0'));
 
-  @override
-  void initState() {
-    super.initState();
-    fetchChartData();
-  }
 
-  Future<void> fetchChartData() async {
-    try {
-      final url = Uri.parse(
-        'http://127.0.0.1:8000/dealer_revenue?year=$selectedYear&month=$selectedMonth',
-      );
 
-      final response = await http.get(url);
-      final data = json.decode(utf8.decode(response.bodyBytes));
-
-      if (data['result'] != null && data['result'] is List) {
-        setState(() {
-          chartData = data['result'].map<DealerRevenue>((item) {
-            return DealerRevenue(
-              name: item['ename'],
-              amount: (item['total'] ?? 0) ~/ 10000, // 만원 단위
-            );
-          }).toList();
-        });
-      } else {
-        setState(() {
-          chartData = [];
-        });
-      }
-    } catch (e) {
-      print('❗ 에러: $e');
-    }
-  }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+     List<DealerRevenue> chartData =ref.watch(adminDealerRevenueProvider);
+     //시작하면 오늘의 날짜로 그래프가 자동적으로 그려지게 만들었다. 
+     ref.read(adminDealerRevenueProvider.notifier).fetchChartData();
     return Scaffold(
       appBar: AppBar(
         title: const Text('매장별 매출 현황'),
@@ -79,8 +56,10 @@ class _AdminDealerRevenueState extends State<AdminDealerRevenue> {
                   items: years.map((y) => DropdownMenuItem(value: y, child: Text('$y년'))).toList(),
                   onChanged: (val) {
                     if (val != null) {
-                      setState(() => selectedYear = val);
-                      fetchChartData();
+                      // 먼저 밖에 있는 handler에 선언 되어 있는 변수 년도에 값을 업데이트 
+                      ref.read(adminDealerRevenueProvider.notifier).selectedYear =val;
+                      //업데이트 된 값을 기반으로 디비를 겁색하여 새로운 값을 받아 온다. 
+                      ref.read(adminDealerRevenueProvider.notifier).fetchChartData1();
                     }
                   },
                 ),
@@ -90,8 +69,10 @@ class _AdminDealerRevenueState extends State<AdminDealerRevenue> {
                   items: months.map((m) => DropdownMenuItem(value: m, child: Text('$m월'))).toList(),
                   onChanged: (val) {
                     if (val != null) {
-                      setState(() => selectedMonth = val);
-                      fetchChartData();
+                      //먼저 밖에 있는 handeler에 들어 있는 월의 값을 업데이트 
+                     ref.read(adminDealerRevenueProvider.notifier).selectedMonth =val;
+                     //업데이트 된 값을 기준으로 다시 검색하여 디비에서 값을 넣어 부르기 
+                      ref.read(adminDealerRevenueProvider.notifier).fetchChartData1();
                     }
                   },
                 ),

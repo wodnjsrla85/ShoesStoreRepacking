@@ -1,3 +1,15 @@
+//로그인 페이지 
+
+/* 개발자 : 김수아
+ * 목적 :  
+ *  회원 이용이 가능하도록 하는 페이지이다. 
+ *  
+ * 개발일지 :
+ *  20250528
+ *  satefullwidget 이였던 파일을 consumerwidget으로 변경하고
+ *  riverpod을 이용하여  MVVM 형태의 개발을 만들었다. 
+ *  회원이 로그인 버튼을 누르게 되면 외부에 있는 handler로 디비 작동을 연결해 주었다. 
+ */
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
@@ -60,6 +72,7 @@ class LoginPage extends ConsumerWidget{
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: (){
+                      //로그인에 넣은 값을 보내준다.
                       ref.read(loginProvider.notifier).login(userIdController.text.trim(),passwordController.text.trim()) ;
                     },
                     icon: const Icon(Icons.login),

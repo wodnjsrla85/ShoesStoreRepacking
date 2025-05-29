@@ -93,7 +93,7 @@ class AdminDrawer extends StatelessWidget {
             leading: const Icon(Icons.add_box),
             title: const Text('상품 등록'), // ✅ 추가 메뉴
             onTap: () {
-              Get.to(const AdminProductInsertPage());
+              Get.to( AdminProductInsertPage());
             },
           ),
           ListTile(
