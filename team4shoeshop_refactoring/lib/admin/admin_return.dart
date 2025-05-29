@@ -1,44 +1,25 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:team4shoeshop_refactoring/admin/widget/admin_drawer.dart';
+import 'package:team4shoeshop_refactoring/vm/1_provider.dart';
 
 
-class AdminReturn extends StatefulWidget {
+class AdminReturn extends ConsumerWidget {
   const AdminReturn({super.key});
 
   @override
-  State<AdminReturn> createState() => _AdminReturnState();
-}
-
-class _AdminReturnState extends State<AdminReturn> {
-  Future<List<Map<String, dynamic>>> fetchReturnedOrders() async {
-    final url = Uri.parse('http://127.0.0.1:8000/return_orders');
-    final response = await http.get(url);
-    final data = json.decode(utf8.decode(response.bodyBytes));
-
-    if (data["result"] != null && data["result"] is List) {
-      return List<Map<String, dynamic>>.from(data["result"]);
-    }
-    return [];
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final returnAsync = ref.watch(adminProvider);
+    
     return Scaffold(
       appBar: AppBar(title: const Text('반품 내역 확인')),
       drawer: AdminDrawer(),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchReturnedOrders(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+      body: returnAsync.when(
+        data: (dataList) {
+          if (dataList.isEmpty) {
             return const Center(child: Text('반품 내역이 없습니다.'));
           }
 
-          final dataList = snapshot.data!;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -49,7 +30,7 @@ class _AdminReturnState extends State<AdminReturn> {
               ),
               const SizedBox(height: 8),
               const Center(
-                child: Text('반품번호 | 브랜드 | 제품명 | 컬러 | 사이즈 | 수량 | 반품일자'),
+                child: Text('반품일 | 반품번호 | 브랜드 | 제품명 | 반품상태 | 수량'),
               ),
               const SizedBox(height: 12),
               Expanded(
@@ -58,7 +39,7 @@ class _AdminReturnState extends State<AdminReturn> {
                   itemCount: dataList.length,
                   itemBuilder: (context, index) {
                     final item = dataList[index];
-                    final date = (item['oreturndate'] as String).split('T').first;
+                    
 
                     return Card(
                       color: Colors.blue[50],
@@ -66,9 +47,9 @@ class _AdminReturnState extends State<AdminReturn> {
                       child: Padding(
                         padding: const EdgeInsets.all(12),
                         child: Text(
-                          '${item["oreturnstatus"]} : '
-                          '반품번호:${item["oid"]} | ${item["pbrand"]} | ${item["pname"]} | '
-                          '${item["pcolor"]} | ${item["psize"]} | ${item["oreturncount"]}개 | $date',
+                          '${item.order.oreturndate} : '
+                          '반품번호:${item.order.oid} | ${item.pbrand} | ${item.pname} | '
+                          '${item.order.oreturnstatus} | ${item.order.ocount}',
                           style: const TextStyle(fontSize: 14),
                         ),
                       ),
@@ -79,6 +60,8 @@ class _AdminReturnState extends State<AdminReturn> {
             ],
           );
         },
+        error: (err, _) => Center(child: Text('에러 발생: $err')),
+        loading: () => const Center(child: CircularProgressIndicator())
       ),
     );
   }
