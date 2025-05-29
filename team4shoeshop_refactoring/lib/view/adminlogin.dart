@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:team4shoeshop_refactoring/admin/admin_main.dart';
+import 'package:team4shoeshop_refactoring/dealer/dealer_main.dart';
 import 'package:team4shoeshop_refactoring/view/login.dart';
 import 'package:team4shoeshop_refactoring/vm/3_provider.dart';
 
@@ -78,8 +79,10 @@ class Adminlogin extends ConsumerWidget {
                         final id = adminIdController.text.trim();
                         final pw = adminpasswordController.text.trim();
                         await employeeNotifier.loginAdmin(id,pw);
-                        if(box.read('adminId') != null){
+                        if(box.read('adminId') != null && box.read('adminPermission') != 0){
                           Get.to(()=> AdminMain());
+                        }else if(box.read('adminId') != null && box.read('adminPermission') == 0){
+                          Get.to(()=>DealerMain());
                         }else{
                           return;
                         }
