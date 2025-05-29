@@ -5,7 +5,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:http/http.dart' as http;
-import 'package:team4shoeshop_refactoring/model/returnsModel.dart';
+import 'package:team4shoeshop_refactoring/model/admin_sales.dart';
+import 'package:team4shoeshop_refactoring/model/dealerlistModel.dart';
+import 'package:team4shoeshop_refactoring/model/inven_model.dart';
+import 'package:team4shoeshop_refactoring/model/returns_model.dart';
 import 'package:team4shoeshop_refactoring/view/shoeslistpage.dart';
 
 class EmployeeLoginNotifier extends StateNotifier<String> {
@@ -138,6 +141,128 @@ class BuyNotifier extends StateNotifier<bool>{
 
     state = false;
   }
+}final buyProvider = StateNotifierProvider<BuyNotifier,bool>((ref) => BuyNotifier(),);
+
+
+
+class DealerMainNotifier extends AsyncNotifier<List<Dealerlistmodel>>{
+  final box = GetStorage();
+  @override
+  Future<List<Dealerlistmodel>> build() async{
+    await fetchDistrictName();
+    return await fetchOrderData();
+  }
+
+  Future<void> fetchDistrictName() async{
+    final eid = box.read('adminId');
+    String dadminname = '';
+    await http.get(Uri.parse('http://127.0.0.1:8000/district?eid=$eid')).then((response) {
+    final result = json.decode(utf8.decode(response.bodyBytes));
+    dadminname = result['ename'] ?? '';
+    box.write('ename', dadminname);
+    });
+  }
+
+
+Future<List<Dealerlistmodel>> fetchOrderData() async{
+    final String dal = "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}";
+    final eid = await box.read('adminId');
+    final url = Uri.parse('http://127.0.0.1:8000/list');
+    final response = await http.get(url);
+    final data = json.decode(utf8.decode(response.bodyBytes))['results'];
+   
+
+    final result = data.where((item) {
+      return item['oeid'].toString() == eid &&
+          item['oreturndate'] == null &&
+          (item['odate'] ?? '').toString().startsWith(dal);
+    }).toList();
+
+    final List<Dealerlistmodel> result1 = (result as List).map((data)=> Dealerlistmodel.fromJson(data)).toList();
+    return result1;
+  }
+
+    
 }
 
-final buyProvider = StateNotifierProvider<BuyNotifier,bool>((ref) => BuyNotifier(),);
+final delaerMainProvider = AsyncNotifierProvider<DealerMainNotifier, List<Dealerlistmodel>>(
+  () => DealerMainNotifier(),
+);
+
+class AdminInvenNotifier extends AsyncNotifier<List<Invenmodel>>{
+  final box = GetStorage();
+  @override
+  Future<List<Invenmodel>> build() async{
+    return await _fetchInventory();
+  }
+
+  Future<List<Invenmodel>> _fetchInventory() async {
+      final adminLevel = box.read('adminLevel') ?? 'guest';
+      final uri = Uri.parse('http://127.0.0.1:8000/a_inventory');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Admin-Level': adminLevel,
+        },
+      );
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      final List<Invenmodel>result = (data['result'] as List).map((e) => Invenmodel.fromJson(e)).toList();
+      return result;
+  }
+}
+
+final adminInvenProvider = AsyncNotifierProvider<AdminInvenNotifier, List<Invenmodel>>(
+  () => AdminInvenNotifier(),
+);
+
+class AdminSalesNotifier extends AsyncNotifier<List<AdminSales>>{
+  @override
+  Future<List<AdminSales>> build() async{
+    return await fetchSalesData();
+  }
+
+  Future<List<AdminSales>> fetchSalesData()async{
+    var response = await http.get(Uri.parse('http://127.0.0.1:8000/a_dealer_sales'));
+      final data = json.decode(utf8.decode(response.bodyBytes));
+      final List<AdminSales> result = (data['result'] as List).map((e) => AdminSales.fromJson(e)).toList();
+      return result;
+  }
+}
+
+final adminSalesProvider = AsyncNotifierProvider<AdminSalesNotifier, List<AdminSales>>(
+  () => AdminSalesNotifier(),
+);
+
+class DealreReturnNotifier extends StateNotifier{
+  DealreReturnNotifier() : super ('');
+
+  Future<void> updateReturnInfo(String oreturncount, String oreason, String oreturnstatus, String odefectivereason, BuildContext context) async {
+    final now = DateTime.now();
+    final formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+    final orderMap = Get.arguments ?? '_';
+
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/update_return'),
+      body: {
+        'oid': orderMap['oid'].toString(),
+        'oreturncount': oreturncount,
+        'oreason': oreason,
+        'oreturnstatus': oreturnstatus,
+        'odefectivereason': odefectivereason,
+        'oreturndate': formattedDate,
+      },
+    );
+
+    if (response.statusCode == 200) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('반품 정보가 저장되었습니다')),
+      );
+      Navigator.pop(context, true);
+    } else {
+      Get.snackbar("오류", "서버 응답 실패: ${response.statusCode}");
+    }
+  }
+}
+
+final dealerReturnProvider = StateNotifierProvider((ref) => DealreReturnNotifier(),);

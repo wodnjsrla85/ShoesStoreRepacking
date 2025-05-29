@@ -68,7 +68,8 @@ class _DealerReturnState extends State<DealerReturn> {
                     subtitle: Text("주문일: ${item['odate']}"),
                     trailing: Text("₩$total"),
                     onTap: () async {
-                      final result = await Get.to(() => DealerReturnDetail(orderMap: item));
+                      final result = await Get.to(() => DealerReturnDetail(), arguments: item);
+                      print(item);
                       if (result == true) {
                         fetchOrders(); 
                       }

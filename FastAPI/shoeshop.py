@@ -906,7 +906,7 @@ async def d_orders():
         conn.close()
         return {"results": [{"oid": d[0], "ocid": d[1], "opid": d[2], "oeid": d[3], "ocount": d[4], "odate": d[5], "ostatus": d[6], "oreturncount": d[7], "oreturndate": d[8], "oreturnstatus": d[9], "oreason": d[10], "pprice" : d[11], "pbrand": d[12], "pname":d[13], "odefectivereason": d[14]} for d in rows]}
     except Exception as e:
-        print("Error:", e)
+        print("Error:", e)  
         return {"result": f"Error: {str(e)}"}
     
 @app.get('/dreturns') #딜러 리턴에 화면구성.

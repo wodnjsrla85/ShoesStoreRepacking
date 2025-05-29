@@ -1,63 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
+import 'package:team4shoeshop_refactoring/vm/3_provider.dart';
 
-class DealerReturnDetail extends StatefulWidget {
-  final Map<String, dynamic> orderMap;
-  const DealerReturnDetail({super.key, required this.orderMap});
-
-  @override
-  State<DealerReturnDetail> createState() => _DealerReturnDetailState();
-}
-
-class _DealerReturnDetailState extends State<DealerReturnDetail> {
-  late TextEditingController returnCountController;
-  late TextEditingController reasonController;
-  late TextEditingController statusController;
-  late TextEditingController defectiveReasonController;
+class DealerReturnDetail extends ConsumerWidget {
+  DealerReturnDetail({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    returnCountController = TextEditingController(
-        text: widget.orderMap['oreturncount']?.toString() ?? '');
-    reasonController =
-        TextEditingController(text: widget.orderMap['oreason'] ?? '');
-    statusController =
-        TextEditingController(text: widget.orderMap['oreturnstatus'] ?? '');
-    defectiveReasonController = TextEditingController(
-        text: widget.orderMap['odefectivereason'] ?? '');
-  }
-
-  Future<void> updateReturnInfo() async {
-    final now = DateTime.now();
-    final formattedDate = '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
-
-    final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/update_return'),
-      body: {
-        'oid': widget.orderMap['oid'].toString(),
-        'oreturncount': returnCountController.text,
-        'oreason': reasonController.text,
-        'oreturnstatus': statusController.text,
-        'odefectivereason': defectiveReasonController.text,
-        'oreturndate': formattedDate,
-      },
-    );
-
-    if (response.statusCode == 200) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('반품 정보가 저장되었습니다')),
-      );
-      Navigator.pop(context, true);
-    } else {
-      Get.snackbar("오류", "서버 응답 실패: ${response.statusCode}");
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final order = widget.orderMap;
+  Widget build(BuildContext context, WidgetRef ref) {
+  final Map<String,dynamic> orderMap = Get.arguments ?? '_';
+    final returnCountController = TextEditingController(
+        text: orderMap['oreturncount']?.toString() ?? '');
+    final reasonController =
+        TextEditingController(text: orderMap['oreason'] ?? '');
+    final statusController =
+        TextEditingController(text: orderMap['oreturnstatus'] ?? '');
+    final defectiveReasonController = TextEditingController(
+        text: orderMap['odefectivereason'] ?? '');
+    final order = orderMap;
 
     return Scaffold(
       appBar: AppBar(
@@ -98,7 +58,7 @@ class _DealerReturnDetailState extends State<DealerReturnDetail> {
             child: Text("취소"),style: ElevatedButton.styleFrom(
         backgroundColor: Colors.grey,),),
             ElevatedButton(
-              onPressed: updateReturnInfo,
+              onPressed: (){ref.read(dealerReturnProvider.notifier).updateReturnInfo(returnCountController.text, reasonController.text, statusController.text, defectiveReasonController.text, context);},
               child: const Text('저장'),
             ),
           ],
