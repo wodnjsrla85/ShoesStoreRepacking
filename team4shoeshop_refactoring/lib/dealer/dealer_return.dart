@@ -43,13 +43,8 @@ class DealerReturn extends ConsumerWidget {
                             onTap: () async {
                               final result = await Get.to(
                                 () => DealerReturnDetail(
-                                  orderMap: {
-                                    ...item.order.toMap(),
-                                    'pprice': item.pprice,
-                                    'pname': item.pname,
-                                    'pbrand': item.pbrand,
-                                  },
                                 ),
+                                arguments: [item]
                               );
                               if (result == true) {
                                 ref.invalidate(dealerProvider); // 상태 갱신
