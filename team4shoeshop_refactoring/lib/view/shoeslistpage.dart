@@ -10,28 +10,13 @@ import 'orderviewpage.dart';
 import 'returns.dart';
 import 'shoes_detail_page.dart';
 
-class Shoeslistpage extends ConsumerStatefulWidget {
+class Shoeslistpage extends ConsumerWidget {
   const Shoeslistpage({super.key});
 
   @override
-  ConsumerState<Shoeslistpage> createState() => _ShoesListPageState();
-}
-
-class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
-  final box = GetStorage();
-  String userId = "";
-  String _searchText = "";
-
-  @override
-  void initState() {
-    super.initState();
-    userId = box.read('p_userId') ?? '';
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final shoesAsync = ref.watch(shoesProvider);
-    
+    final searchText = ref.watch(searchProvider);
 
     return Scaffold(
       backgroundColor: Colors.brown[50],
@@ -49,17 +34,17 @@ class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
       ),
       body: Column(
         children: [
-          _buildSearchBar(),
+          _buildSearchBar(ref),
           Expanded(
             child: shoesAsync.when(
               loading: () => Center(child: CircularProgressIndicator()),
               error: (err, _) => Center(child: Text("에러: $err")),
               data: (products) {
                 final filtered = products.where((p) =>
-                    p['pname'].toString().toLowerCase().contains(_searchText.toLowerCase())).toList();
+                  p['pname'].toString().toLowerCase().contains(searchText.toLowerCase())
+                ).toList();
 
                 if (filtered.isEmpty) return Center(child: Text('상품이 없습니다.'));
-
                 return GridView.builder(
                   padding: EdgeInsets.all(12),
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -69,9 +54,7 @@ class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
                     childAspectRatio: 0.68,
                   ),
                   itemCount: filtered.length,
-                  itemBuilder: (context, index) {
-                    return _buildProductCard(filtered[index]);
-                  },
+                  itemBuilder: (context, index) => _buildProductCard(filtered[index]),
                 );
               },
             ),
@@ -81,7 +64,7 @@ class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(WidgetRef ref) {
     return Padding(
       padding: EdgeInsets.all(12),
       child: TextField(
@@ -95,14 +78,11 @@ class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
             borderSide: BorderSide.none,
           ),
         ),
-        onChanged: (query) {
-          setState(() {
-            _searchText = query;
-          });
-        },
+        onChanged: (text) => ref.read(searchProvider.notifier).state = text,
       ),
     );
   }
+}
 
   Widget _buildProductCard(Map<String, dynamic> product) {
     final selectedSize = product['psize'] ?? 250;
@@ -181,7 +161,7 @@ class _ShoesListPageState extends ConsumerState<Shoeslistpage> {
       ),
     );
   }
-}
+
 
 class MainDrawer extends StatelessWidget {
   final box = GetStorage();

@@ -23,7 +23,7 @@ class ShoesNotifier extends AsyncNotifier<List<Map<String, dynamic>>> {
     state = await AsyncValue.guard(() async => await fetchShoes());
   }
 }
-
+final searchProvider = StateProvider<String>((ref) => "");  // 검색창을 위해 추가
 final shoesProvider =
     AsyncNotifierProvider<ShoesNotifier, List<Map<String, dynamic>>>(
   () => ShoesNotifier(),
